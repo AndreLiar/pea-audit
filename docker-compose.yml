@@ -1,0 +1,55 @@
+services:
+  # ────────────────────── App web (Streamlit) ──────────────────────
+  # `docker compose up -d` lance le dashboard sur http://localhost:8502
+  # (8502 plutôt que 8501 par défaut pour ne pas entrer en conflit avec une
+  # autre app Streamlit éventuellement déjà sur 8501.)
+  web:
+    build: .
+    image: etftracker:latest
+    container_name: etftracker-web
+    restart: unless-stopped
+    ports:
+      - "8502:8501"
+    env_file: .env
+    volumes:
+      # Persiste le cache (verdicts + KIDs téléchargés) entre redémarrages.
+      - ./cache:/app/cache
+      # Permet d'éditer positions.csv sans rebuild.
+      - ./positions.csv:/app/positions.csv
+      # Optionnel : permet d'éditer kid_sources.py sans rebuild.
+      - ./etftracker/kid_sources.py:/app/etftracker/kid_sources.py
+
+  # ─────────────────── API HTTP (FastAPI) ────────────────────────────
+  # `docker compose up -d api` lance l'API REST sur http://localhost:8080
+  # Docs auto-générées : http://localhost:8080/docs
+  api:
+    build: .
+    image: etftracker:latest
+    container_name: etftracker-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file: .env
+    volumes:
+      - ./cache:/app/cache
+      - ./positions.csv:/app/positions.csv
+      - ./etftracker/__init__.py:/app/etftracker/__init__.py
+      - ./pea_audit/sources/amundi.py:/app/pea_audit/sources/amundi.py
+      - ./pea_audit/sources/bnp.py:/app/pea_audit/sources/bnp.py
+    command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8080"]
+
+  # ─────────────────── Re-audit mensuel (à la demande) ─────────────────
+  # NE démarre PAS automatiquement (profile activé seulement à l'invocation).
+  # Usage :  docker compose run --rm recheck
+  # À planifier mensuellement via le cron de l'hôte — voir CLAUDE.md.
+  recheck:
+    build: .
+    image: etftracker:latest
+    container_name: etftracker-recheck
+    profiles: ["recheck"]
+    env_file: .env
+    volumes:
+      - ./cache:/app/cache
+      - ./positions.csv:/app/positions.csv
+      - ./etftracker/kid_sources.py:/app/etftracker/kid_sources.py
+    command: ["python", "audit_recheck.py"]

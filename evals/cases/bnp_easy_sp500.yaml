@@ -1,0 +1,17 @@
+name: BNP Paribas Easy S&P 500 UCITS ETF
+category: eligible_synthetic_swap
+pdf_url: https://docfinder.bnpparibas-am.com/api/files/d56ce147-d9d1-4e68-b057-f3c622dda848/69120
+isin: FR0011550185
+
+expected:
+  eligible: "yes"
+  replication: synthetic_swap
+  isin: FR0011550185
+
+expected_contains:
+  issuer: BNP
+  underlying_index: S&P 500
+
+notes: |
+  Synthétique via swap. Émetteur BNP Paribas Asset Management (Gemma
+  abrège parfois en "BNP Paribas"), donc on asserte juste "BNP".

@@ -1,0 +1,11 @@
+yfinance>=0.2.40
+pandas>=2.0.0
+streamlit>=1.30.0
+ollama>=0.4.0
+pypdfium2>=4.30.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+tenacity>=9.0
+langfuse>=4.0
+fastapi[standard]>=0.110
+python-multipart>=0.0.9

@@ -1,0 +1,18 @@
+name: Amundi PEA S&P 500 UCITS ETF Acc
+category: eligible_synthetic_swap
+pdf_url: https://www.amundietf.fr/pdfDocuments/kid-priips/FR0011871128/FRA/FRA
+isin: FR0011871128
+
+expected:
+  eligible: "yes"
+  replication: synthetic_swap
+  isin: FR0011871128
+
+expected_contains:
+  issuer: Amundi
+  underlying_index: S&P 500
+
+notes: |
+  Cas miroir d'iShares Core S&P 500 — même indice sous-jacent, mais
+  synthétique avec panier EEA → ÉLIGIBLE PEA. Si le LLM classe les deux
+  pareil, on a un problème.

@@ -1,0 +1,68 @@
+[build-system]
+requires = ["hatchling>=1.20"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pea-audit"
+version = "0.1.0"
+description = "Audit PEA-eligibility of ETF KID documents with a vision LLM. French PEA (Plan d'Épargne en Actions) rules built in."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Andrey Kanmegne" },
+]
+keywords = ["pea", "etf", "finance", "llm", "ollama", "gemma", "audit", "kid", "priips"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Natural Language :: French",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "ollama>=0.4.0",
+    "pypdfium2>=4.30.0",
+    "requests>=2.30",
+    "tenacity>=9.0",
+]
+
+[project.optional-dependencies]
+# Observability — opt-in
+observability = ["langfuse>=4.0"]
+# Eval suite — for running regression tests
+evals = ["pyyaml>=6.0"]
+# Full dev stack
+dev = [
+    "langfuse>=4.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/AndreLiar/pea-audit"
+Repository = "https://github.com/AndreLiar/pea-audit"
+Issues = "https://github.com/AndreLiar/pea-audit/issues"
+Changelog = "https://github.com/AndreLiar/pea-audit/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pea_audit"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+# Ship the markdown prompts inside the wheel
+"pea_audit/prompts" = "pea_audit/prompts"
+
+[tool.hatch.build]
+include = [
+    "pea_audit/**/*.py",
+    "pea_audit/**/*.md",
+    "pea_audit/py.typed",
+]

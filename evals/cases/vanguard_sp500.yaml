@@ -1,0 +1,15 @@
+name: Vanguard S&P 500 UCITS ETF
+category: ineligible_physical_non_eea
+pdf_url: https://fund-docs.vanguard.com/ie00b3xxrp09_priipskid_fr.pdf
+isin: IE00B3XXRP09
+
+expected:
+  eligible: "no"
+  replication: physical
+  isin: IE00B3XXRP09
+
+expected_contains:
+  issuer: Vanguard
+  underlying_index: S&P 500
+
+notes: Réplication physique S&P 500. NON éligible PEA. Teste un émetteur autre que BlackRock.

@@ -1,0 +1,15 @@
+name: iShares Core MSCI EM IMI UCITS ETF
+category: ineligible_physical_non_eea
+pdf_url: https://www.blackrock.com/fr/intermediaries/literature/kiid/eu-priips-ishares-core-msci-em-imi-ucits-etf-usd-acc-ie00bkm4gz66-fr.pdf
+isin: IE00BKM4GZ66
+
+expected:
+  eligible: "no"
+  replication: physical
+  isin: IE00BKM4GZ66
+
+expected_contains:
+  issuer: BlackRock
+  underlying_index: EM
+
+notes: Réplication physique des marchés émergents. NON éligible PEA.

@@ -1,0 +1,15 @@
+name: Vanguard FTSE All-World UCITS ETF
+category: ineligible_physical_non_eea
+pdf_url: https://fund-docs.vanguard.com/ie00b3rbwm25_priipskid_fr.pdf
+isin: IE00B3RBWM25
+
+expected:
+  eligible: "no"
+  replication: physical
+  isin: IE00B3RBWM25
+
+expected_contains:
+  issuer: Vanguard
+  underlying_index: All-World
+
+notes: Réplication physique du FTSE All-World (DM + EM). NON éligible PEA.

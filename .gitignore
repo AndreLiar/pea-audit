@@ -1,0 +1,39 @@
+# Secrets — ne jamais committer
+.env
+
+# Caches d'audit (verdicts + PDFs téléchargés)
+cache/
+
+# Eval PDFs téléchargés (re-téléchargeables depuis les URLs des cases)
+evals/data/
+
+# Artefacts de test
+*.pdf
+!samples/*.pdf
+*.png
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build artifacts
+dist/
+build/
+
+# macOS
+.DS_Store
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Playwright traces
+.playwright-mcp/
+
+# User's real portfolio (template lives in positions.csv.example)
+positions.csv

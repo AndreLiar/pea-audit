@@ -1,0 +1,17 @@
+name: Amundi PEA Monde (MSCI World) UCITS ETF
+category: eligible_synthetic_swap
+pdf_url: https://www.amundietf.fr/pdfDocuments/kid-priips/FR001400U5Q4/FRA/FRA
+isin: FR001400U5Q4
+
+expected:
+  eligible: "yes"
+  replication: synthetic_swap
+  isin: FR001400U5Q4
+
+expected_contains:
+  issuer: Amundi
+  underlying_index: MSCI World
+
+notes: |
+  Synthétique via swap, panier d'actions EEA ≥75%. PEA-éligible.
+  Cas typique de l'audit qu'on veut bien classer.

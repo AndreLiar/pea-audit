@@ -1,0 +1,19 @@
+# ETFTracker — re-audit PEA mensuel
+# ----------------------------------
+# Copie ces lignes dans ton crontab :  crontab -e
+#
+# Variables :
+#   - MAILTO : reçois un mail si un changement matériel est détecté (exit 2)
+#   - PROJECT_DIR : chemin absolu vers le projet
+#
+# Le 1er de chaque mois à 9h, force-refresh tous les KIDs et compare aux
+# verdicts précédents. Sortie 0 = stable, 2 = changements détectés.
+
+MAILTO="kanmegnea@gmail.com"
+PROJECT_DIR="/Users/andreyvanlaurelkanmegnetabouguie/Desktop/Business/financialtools/ETFTracker"
+
+# Variante 1 : via Docker Compose (recommandé — environnement isolé)
+0 9 1 * * cd "$PROJECT_DIR" && /usr/local/bin/docker compose run --rm recheck
+
+# Variante 2 : Python local (si tu n'utilises pas Docker)
+# 0 9 1 * * cd "$PROJECT_DIR" && /usr/local/bin/python3 audit_recheck.py

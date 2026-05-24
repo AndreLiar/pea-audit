@@ -1,0 +1,18 @@
+name: Amundi PEA Nasdaq-100 UCITS ETF Acc
+category: eligible_synthetic_swap
+pdf_url: https://www.amundietf.fr/pdfDocuments/kid-priips/FR0011871110/FRA/FRA
+isin: FR0011871110
+
+expected:
+  eligible: "yes"
+  replication: synthetic_swap
+  isin: FR0011871110
+
+expected_contains:
+  issuer: Amundi
+  underlying_index: Nasdaq
+
+notes: |
+  Original Amundi PEA Nasdaq-100 (toujours actif sous cet ISIN, malgré
+  le rebrand du ticker PANX.PA vers FR0013412269 — US Tech Screened).
+  Cas miroir d'iShares Nasdaq 100 — synthétique = éligible, physique = pas.

@@ -1,0 +1,24 @@
+# Don't ship runtime/cache state into the image — it's volume-mounted.
+cache/
+
+# Secrets — passed via env_file at runtime
+.env
+
+# Local dev / test artifacts
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.png
+.playwright-mcp/
+.streamlit/secrets.toml
+
+# Git / IDE
+.git/
+.gitignore
+.idea/
+.vscode/
+
+# Docs — small but not needed in the image
+*.md
+samples/

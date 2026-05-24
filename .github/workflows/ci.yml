@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    name: Unit tests (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install
+        run: |
+          pip install -e '.[dev]'
+          pip install pytest
+      - name: Lint (compileall)
+        run: python -m compileall -q pea_audit tests
+      - name: Run unit tests
+        run: pytest tests/ -v
+
+  build:
+    name: Build wheel + sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build distributions
+        run: |
+          pip install build
+          python -m build
+      - name: Verify prompts ship in wheel
+        run: |
+          python -c "
+          import zipfile, glob
+          [w] = glob.glob('dist/*.whl')
+          with zipfile.ZipFile(w) as z:
+              names = z.namelist()
+              assert any(n.endswith('audit_v2.md') for n in names), \
+                  f'prompts missing from wheel: {names}'
+              print('✓ prompts shipped in wheel')
+          "
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  evals:
+    name: Eval suite (LLM)
+    runs-on: ubuntu-latest
+    # Only runs when an Ollama key is configured as a repo secret —
+    # skips silently on forks / PRs without secret access.
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: pip install -e '.[dev,evals]'
+      - name: Run evals
+        env:
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+        run: |
+          if [ -z "$OLLAMA_API_KEY" ]; then
+            echo "::warning::OLLAMA_API_KEY secret not set — skipping evals."
+            exit 0
+          fi
+          python evals/run.py

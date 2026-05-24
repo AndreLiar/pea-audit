@@ -1,0 +1,18 @@
+name: iShares Nasdaq 100 UCITS ETF
+category: ineligible_physical_non_eea
+pdf_url: https://www.blackrock.com/fr/intermediaries/literature/kiid/eu-priips-ishares-nasdaq-100-ucits-etf-usd-acc-ie00b53szb19-fr.pdf
+isin: IE00B53SZB19
+
+expected:
+  eligible: "no"
+  replication: physical
+  isin: IE00B53SZB19
+
+expected_contains:
+  issuer: BlackRock
+  underlying_index: Nasdaq
+
+notes: |
+  Réplication physique du Nasdaq-100 (100% US tech). NON éligible PEA —
+  à comparer avec Amundi PEA US Tech Screened (FR0013412269) qui EST
+  éligible parce que synthétique sur panier EEA.

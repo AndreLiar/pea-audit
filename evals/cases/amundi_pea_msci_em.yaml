@@ -1,0 +1,18 @@
+name: Amundi PEA MSCI Emerging Markets UCITS ETF
+category: eligible_synthetic_swap
+pdf_url: https://www.amundietf.fr/pdfDocuments/kid-priips/FR0011440478/FRA/FRA
+isin: FR0011440478
+
+expected:
+  eligible: "yes"
+  replication: synthetic_swap
+  isin: FR0011440478
+
+expected_contains:
+  issuer: Amundi
+  underlying_index: EM
+
+notes: |
+  ⚠️ L'index sous-jacent réel varie selon les réémissions du KID (Amundi a
+  introduit des screens ESG). On asserte juste « EM » comme substring (présent
+  dans "MSCI EM …" sous toutes ses variantes).

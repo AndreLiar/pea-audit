@@ -1,0 +1,17 @@
+name: Amundi MSCI World Swap II UCITS ETF Dist
+category: eligible_synthetic_swap
+pdf_url: https://www.amundietf.fr/pdfDocuments/kid-priips/FR0010315770/FRA/FRA
+isin: FR0010315770
+
+expected:
+  eligible: "yes"
+  replication: synthetic_swap
+  isin: FR0010315770
+
+expected_contains:
+  issuer: Amundi
+  underlying_index: MSCI World
+
+notes: |
+  Variante distribuante du MSCI World swap. Synthétique, devrait être PEA-éligible.
+  Teste qu'on classe correctement les distribuants (vs capitalisants).

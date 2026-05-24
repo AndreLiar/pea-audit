@@ -1,0 +1,18 @@
+name: iShares Core S&P 500 UCITS ETF
+category: ineligible_physical_non_eea
+pdf_url: https://www.blackrock.com/fr/intermediaries/literature/kiid/eu-priips-ishares-core-sp-500-ucits-etf-usd-acc-ie00b5bmr087-fr.pdf
+isin: IE00B5BMR087
+
+expected:
+  eligible: "no"
+  replication: physical
+  isin: IE00B5BMR087
+
+expected_contains:
+  issuer: BlackRock
+  underlying_index: S&P 500
+
+notes: |
+  Réplication PHYSIQUE d'un indice US (S&P 500). Pas de panier EEA → NON
+  éligible PEA. Cas crucial — teste que le LLM distingue physique de
+  synthétique (vs Amundi PEA S&P 500 qui est éligible parce que synthétique).
