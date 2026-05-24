@@ -5,6 +5,7 @@ ollama>=0.4.0
 pypdfium2>=4.30.0
 python-dotenv>=1.0.0
 pyyaml>=6.0
+pillow>=10.0
 tenacity>=9.0
 langfuse>=4.0
 fastapi[standard]>=0.110
