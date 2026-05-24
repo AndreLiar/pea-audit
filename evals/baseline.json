@@ -1,0 +1,57 @@
+{
+  "pass_rate": "13/13",
+  "cases": {
+    "Amundi MSCI World Swap II UCITS ETF Dist": {
+      "passed": true,
+      "category": "eligible_synthetic_swap"
+    },
+    "Amundi PEA Monde (MSCI World) UCITS ETF": {
+      "passed": true,
+      "category": "eligible_synthetic_swap"
+    },
+    "Amundi PEA MSCI Emerging Markets UCITS ETF": {
+      "passed": true,
+      "category": "eligible_synthetic_swap"
+    },
+    "Amundi PEA Nasdaq-100 UCITS ETF Acc": {
+      "passed": true,
+      "category": "eligible_synthetic_swap"
+    },
+    "Amundi PEA S&P 500 UCITS ETF Acc": {
+      "passed": true,
+      "category": "eligible_synthetic_swap"
+    },
+    "Amundi PEA US Tech Screened UCITS ETF (ex-Nasdaq-100)": {
+      "passed": true,
+      "category": "eligible_synthetic_swap"
+    },
+    "BNP Paribas Easy S&P 500 UCITS ETF": {
+      "passed": true,
+      "category": "eligible_synthetic_swap"
+    },
+    "iShares Core MSCI EM IMI UCITS ETF": {
+      "passed": true,
+      "category": "ineligible_physical_non_eea"
+    },
+    "iShares Core MSCI World UCITS ETF": {
+      "passed": true,
+      "category": "ineligible_physical_non_eea"
+    },
+    "iShares Core S&P 500 UCITS ETF": {
+      "passed": true,
+      "category": "ineligible_physical_non_eea"
+    },
+    "iShares Nasdaq 100 UCITS ETF": {
+      "passed": true,
+      "category": "ineligible_physical_non_eea"
+    },
+    "Vanguard FTSE All-World UCITS ETF": {
+      "passed": true,
+      "category": "ineligible_physical_non_eea"
+    },
+    "Vanguard S&P 500 UCITS ETF": {
+      "passed": true,
+      "category": "ineligible_physical_non_eea"
+    }
+  }
+}

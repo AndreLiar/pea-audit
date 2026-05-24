@@ -11,6 +11,18 @@ Audit French **PEA** (Plan d'Épargne en Actions) eligibility of ETFs by reading
 
 > **What's in this repo?** Two things: **`pea-audit`** — the library you `pip install` (lives in `pea_audit/`) — and **ETFTracker** — a reference app that consumes it (Streamlit dashboard + CLI + FastAPI at the repo root, plus `etftracker/` helper code). Most of this README is about the library; see [ETFTracker.md](ETFTracker.md) for the app side (French).
 
+### Not a developer? Three options
+
+The rest of this README is for Python devs adopting the library. If you just want to check your own PEA holdings:
+
+1. **Run the dashboard locally** — `git clone`, `cp .env.example .env` (add your Ollama key), `docker compose up -d web` → http://localhost:8502. Point-and-click verdicts; no code.
+2. **Upload via the HTTP API** — `docker compose up -d api` then `POST /audit/upload` with a PDF (Swagger docs at http://localhost:8080/docs).
+3. **Hire a dev or use a managed service** — honestly the most realistic option for non-technical PEA holders. The library exists so a hosted version of this is buildable in a weekend.
+
+![Dashboard](docs/screenshot-dashboard.png)
+
+> *Streamlit "Portefeuille" tab — 4 holdings with live yfinance prices and PEA-eligibility badges (✅ from the audit cache).*
+
 ```
 $ python audit_cli.py samples/amundi_pea_monde_kid.pdf
 📄 Audit de : samples/amundi_pea_monde_kid.pdf
@@ -155,6 +167,19 @@ The repo ships **13 regression cases** under `evals/cases/*.yaml` — 7 PEA-elig
 ```bash
 python evals/run.py
 ```
+
+## What does it cost?
+
+Default backend is Gemma 4 31b-cloud via Ollama Cloud:
+
+| Operation | Approx. cost | Notes |
+|---|---|---|
+| One audit (cold cache) | ~$0.02 | 1 PDF, ~3 pages, vision model |
+| One audit (cache hit) | $0 | sha256 lookup, no LLM call |
+| Full eval suite (13 cases, cold) | ~$0.25 | Once per prompt/model change |
+| Monthly portfolio re-audit (4 funds, force-refresh) | ~$0.10 | One scheduled run per month |
+
+If you bring your own LLM via the `VisionLLM` protocol (Claude vision, GPT-4o, local Ollama, …), substitute that provider's per-image pricing — the library doesn't add overhead beyond one call per audit.
 
 ## Production niceties
 

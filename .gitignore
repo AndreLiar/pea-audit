@@ -11,6 +11,7 @@ evals/data/
 *.pdf
 !samples/*.pdf
 *.png
+!docs/*.png
 
 # Python
 __pycache__/

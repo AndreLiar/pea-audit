@@ -23,24 +23,39 @@ from .core import (
     DEFAULT_PROMPT_VERSION,
     PEA_VERDICT_SCHEMA,
     Citation,
+    Confidence,
+    Eligible,
     PeaVerdict,
+    Replication,
+    aaudit_pdf,
     audit_pdf,
 )
 from .isin import extract_isins, isin_check_digit_valid
-from .ticker import TickerAuditResult, audit_ticker, get_cached_verdict
+from .ticker import (
+    TickerAuditResult,
+    aaudit_ticker,
+    audit_ticker,
+    get_cached_verdict,
+)
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "__version__",
-    # Core audit
+    # Core audit (sync)
     "audit_pdf",
     "audit_ticker",
     "get_cached_verdict",
-    # Dataclasses
+    # Core audit (async)
+    "aaudit_pdf",
+    "aaudit_ticker",
+    # Dataclasses + enums
     "PeaVerdict",
     "Citation",
     "TickerAuditResult",
+    "Eligible",
+    "Confidence",
+    "Replication",
     # Cache
     "VerdictCache",
     # Comparison (for re-audit cron)

@@ -44,7 +44,7 @@ def extract_isins(pdf_path: str | Path) -> list[str]:
     pdf = pdfium.PdfDocument(str(pdf_path))
     seen: dict[str, None] = {}
     for page in pdf:
-        text = page.get_textpage().get_text_range()
+        text = page.get_textpage().get_text_bounded()
         for m in ISIN_RE.finditer(text):
             isin = m.group()
             if isin not in seen and isin_check_digit_valid(isin):

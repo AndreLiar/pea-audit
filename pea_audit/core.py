@@ -11,8 +11,9 @@ skip the LLM on previously-seen PDFs (keyed by sha256 of the bytes).
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Union
 
 from .isin import extract_isins
 from .pdf import pdf_to_images
@@ -20,10 +21,36 @@ from .prompts import load_prompt
 
 if TYPE_CHECKING:
     from .cache import VerdictCache
-    from .llm.base import VisionLLM
+    from .llm.base import AsyncVisionLLM, VisionLLM
 
 
 DEFAULT_PROMPT_VERSION = "v2"
+
+
+class Eligible(str, Enum):
+    """PEA eligibility verdict. Subclasses `str` so equality with literal
+    "yes" / "no" / "uncertain" still works (backward-compatible)."""
+    YES = "yes"
+    NO = "no"
+    UNCERTAIN = "uncertain"
+
+
+class Confidence(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
+class Replication(str, Enum):
+    PHYSICAL = "physical"
+    SYNTHETIC_SWAP = "synthetic_swap"
+    UNKNOWN = "unknown"
+
+
+# Type aliases — accept either Enum or raw string for ergonomic construction.
+EligibleLike = Union[Eligible, str]
+ConfidenceLike = Union[Confidence, str]
+ReplicationLike = Union[Replication, str]
 
 
 @dataclass(frozen=True)
@@ -42,15 +69,22 @@ class PeaVerdict:
     the same input — diffing them across audits will produce false positives.
     """
 
-    eligible: Literal["yes", "no", "uncertain"]
-    confidence: Literal["low", "medium", "high"]
-    replication: Literal["physical", "synthetic_swap", "unknown"]
+    eligible: Eligible
+    confidence: Confidence
+    replication: Replication
     underlying_index: str
     issuer: str
     isin: str
     evidence: list[Citation] = field(default_factory=list)
     red_flags: list[str] = field(default_factory=list)
     summary_fr: str = ""
+
+    def __post_init__(self) -> None:
+        # Coerce raw strings → Enums so user code can construct PeaVerdict
+        # with either, and equality / serialization stays consistent.
+        object.__setattr__(self, "eligible", Eligible(self.eligible))
+        object.__setattr__(self, "confidence", Confidence(self.confidence))
+        object.__setattr__(self, "replication", Replication(self.replication))
 
 
 PEA_VERDICT_SCHEMA: dict = {
@@ -131,7 +165,7 @@ def audit_pdf(
     pdf_bytes = pdf_path.read_bytes()
 
     if cache is not None:
-        cached = cache.get(pdf_bytes)
+        cached = cache.get(pdf_bytes, prompt_version=prompt_version)
         if cached is not None:
             return cached
 
@@ -169,6 +203,64 @@ def audit_pdf(
     verdict = _reconcile_isin(verdict, extracted_isins)
 
     if cache is not None:
-        cache.put(pdf_bytes, verdict)
+        cache.put(pdf_bytes, verdict, prompt_version=prompt_version)
+
+    return verdict
+
+
+# ─── Async variant ───────────────────────────────────────────────────────────
+
+
+async def aaudit_pdf(
+    pdf_path: str | Path,
+    llm: "AsyncVisionLLM",
+    cache: "VerdictCache | None" = None,
+    prompt_version: str = DEFAULT_PROMPT_VERSION,
+) -> PeaVerdict:
+    """Async sibling of `audit_pdf`. Use with `AsyncOllamaCloudClient`
+    (or any `AsyncVisionLLM` impl) when the surrounding code is async."""
+    pdf_path = Path(pdf_path)
+    pdf_bytes = pdf_path.read_bytes()
+
+    if cache is not None:
+        cached = cache.get(pdf_bytes, prompt_version=prompt_version)
+        if cached is not None:
+            return cached
+
+    system, user_prompt = load_prompt(prompt_version)
+
+    images = pdf_to_images(pdf_path)
+    extracted_isins = extract_isins(pdf_path)
+
+    prompt = user_prompt
+    if extracted_isins:
+        prompt += (
+            "\n\nISIN extraits du texte du PDF (déterministes, check-digit validé) : "
+            + ", ".join(extracted_isins)
+            + ". Choisis celui qui correspond au fonds analysé."
+        )
+
+    raw = await llm.analyze_images(
+        images=images,
+        prompt=prompt,
+        schema=PEA_VERDICT_SCHEMA,
+        system=system,
+    )
+
+    verdict = PeaVerdict(
+        eligible=raw["eligible"],
+        confidence=raw["confidence"],
+        replication=raw["replication"],
+        underlying_index=raw["underlying_index"],
+        issuer=raw["issuer"],
+        isin=raw["isin"],
+        evidence=[_parse_citation(c) for c in raw.get("evidence", [])],
+        red_flags=list(raw.get("red_flags", [])),
+        summary_fr=raw.get("summary_fr", ""),
+    )
+    verdict = _reconcile_isin(verdict, extracted_isins)
+
+    if cache is not None:
+        cache.put(pdf_bytes, verdict, prompt_version=prompt_version)
 
     return verdict

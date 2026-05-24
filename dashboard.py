@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from pea_audit import (
+    DEFAULT_PROMPT_VERSION,
     PeaVerdict,
     TickerAuditResult,
     VerdictCache,
@@ -98,7 +99,7 @@ with tab_portfolio:
     _PEA_BADGE = {"yes": "✅", "no": "❌", "uncertain": "⚠️"}
 
     def _pea_cell(ticker: str) -> str:
-        v = get_cached_verdict(ticker, cache=_audit_cache, kid_dir=KID_DIR)
+        v = get_cached_verdict(ticker, cache=_audit_cache, kid_dir=KID_DIR, prompt_version=DEFAULT_PROMPT_VERSION)
         return _PEA_BADGE[v.eligible] if v is not None else "—"
 
     df = pd.DataFrame(
@@ -138,7 +139,7 @@ with tab_portfolio:
             "+/- Value (%)": st.column_config.NumberColumn(format="%+.2f %%"),
         },
     )
-    if any(get_cached_verdict(l.ticker, cache=_audit_cache, kid_dir=KID_DIR) is None for l in lignes):
+    if any(get_cached_verdict(l.ticker, cache=_audit_cache, kid_dir=KID_DIR, prompt_version=DEFAULT_PROMPT_VERSION) is None for l in lignes):
         st.caption("« — » dans la colonne PEA = pas encore audité. Lance "
                    "l'audit dans l'onglet 🔍 Audit PEA.")
 

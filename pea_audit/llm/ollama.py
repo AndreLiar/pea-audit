@@ -18,8 +18,9 @@ import os
 import re
 from typing import Any
 
-from ollama import Client, ResponseError
+from ollama import AsyncClient, Client, ResponseError
 from tenacity import (
+    AsyncRetrying,
     retry,
     retry_if_exception,
     stop_after_attempt,
@@ -169,3 +170,92 @@ class OllamaCloudClient:
             format=schema,
             options={"temperature": 1.0, "top_p": 0.95, "top_k": 64},
         )
+
+
+# ─── Async client ────────────────────────────────────────────────────────────
+
+
+class AsyncOllamaCloudClient:
+    """Async sibling of `OllamaCloudClient`.
+
+    Use this in async code (FastAPI, batch processing, webhook handlers)
+    where blocking on the LLM call would stall the event loop. Same retry +
+    optional Langfuse semantics as the sync version.
+
+    Example:
+        >>> import asyncio
+        >>> from pea_audit import aaudit_pdf, VerdictCache
+        >>> from pea_audit.llm import AsyncOllamaCloudClient
+        >>>
+        >>> async def main():
+        ...     llm = AsyncOllamaCloudClient(api_key="...")
+        ...     return await aaudit_pdf("kid.pdf", llm=llm)
+        >>>
+        >>> asyncio.run(main())
+    """
+
+    def __init__(
+        self,
+        api_key: str,
+        model: str = DEFAULT_MODEL,
+        host: str = DEFAULT_HOST,
+    ):
+        if not api_key:
+            raise ValueError("api_key is required for AsyncOllamaCloudClient")
+        self._client = AsyncClient(host=host, headers={"Authorization": f"Bearer {api_key}"})
+        self._model = model
+
+    async def analyze_images(
+        self,
+        images: list[bytes],
+        prompt: str,
+        schema: dict[str, Any],
+        system: str | None = None,
+    ) -> dict[str, Any]:
+        if not images:
+            raise ValueError("At least one image is required")
+
+        messages: list[dict] = []
+        if system:
+            messages.append({"role": "system", "content": system})
+        messages.append({"role": "user", "content": prompt, "images": images})
+
+        response = await self._chat_with_retry(messages, schema)
+        raw = response["message"]["content"]
+        cleaned = _strip_code_fence(raw)
+
+        if _langfuse_enabled and _langfuse_client is not None:
+            trace_input = [
+                m if m.get("role") != "user" else {**m, "images": f"<{len(images)} image(s)>"}
+                for m in messages
+            ]
+            _langfuse_client.update_current_generation(
+                model=self._model,
+                input=trace_input,
+                output=cleaned,
+                usage_details=response.get("usage") if isinstance(response, dict) else None,
+            )
+
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError as e:
+            raise RuntimeError(
+                f"Non-JSON response from {self._model} ({len(raw)} chars). "
+                f"Start: {raw[:500]!r}"
+            ) from e
+
+    async def _chat_with_retry(self, messages: list[dict], schema: dict) -> dict:
+        async for attempt in AsyncRetrying(
+            stop=stop_after_attempt(3),
+            wait=wait_exponential(multiplier=1, min=1, max=16),
+            retry=retry_if_exception(_is_transient),
+            reraise=True,
+        ):
+            with attempt:
+                return await self._client.chat(
+                    model=self._model,
+                    messages=messages,
+                    format=schema,
+                    options={"temperature": 1.0, "top_p": 0.95, "top_k": 64},
+                )
+        raise RuntimeError("unreachable: AsyncRetrying always returns or raises")
