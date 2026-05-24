@@ -2,9 +2,9 @@
 
 All notable changes to `pea-audit` are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is [SemVer](https://semver.org/).
 
-## [0.1.0] — Unreleased
+## [0.1.0] — 2026-05-24
 
-Initial release.
+Initial release. Published to PyPI: <https://pypi.org/project/pea-audit/0.1.0/>.
 
 ### Added
 - `audit_pdf(pdf, llm, cache=None)` — main API for auditing a single KID/DIC PDF
