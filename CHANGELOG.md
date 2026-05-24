@@ -2,6 +2,18 @@
 
 All notable changes to `pea-audit` are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning is [SemVer](https://semver.org/).
 
+## [0.2.1] — 2026-05-24
+
+Docs-only patch. No code changes — bumps the README that ships with the wheel so the PyPI project page reflects the latest copy.
+
+### Changed
+- Absolute GitHub raw URL for the dashboard screenshot (was relative — broke PyPI rendering)
+- Quickstart includes an async snippet (`aaudit_pdf` + `AsyncOllamaCloudClient` + `asyncio.gather`)
+- Section reorder: *Why → Install → Quickstart* first; "Not a developer?" moved next to the reference-app section
+- References to `examples/` directory + `cp positions.csv.example positions.csv` step
+- New "Known limitations" section surfacing the LLM-variance caveat that was buried in CHANGELOG
+- "Latest:" line near the title + CHANGELOG link in footer
+
 ## [0.2.0] — 2026-05-24
 
 Senior-review fixes from the cold-reader pass. No breaking changes for ordinary library users (Enums subclass `str`, so `verdict.eligible == "yes"` still works), but the cache key format changed — see "Breaking" below.
