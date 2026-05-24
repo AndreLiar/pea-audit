@@ -11,7 +11,7 @@ Audit French **PEA** (Plan d'Épargne en Actions) eligibility of ETFs by reading
 
 > **What's in this repo?** Two things: **`pea-audit`** — the library you `pip install` (lives in `pea_audit/`) — and **ETFTracker** — a reference app that consumes it (Streamlit dashboard + CLI + FastAPI at the repo root, plus `etftracker/` helper code). Most of this README is about the library; see [ETFTracker.md](ETFTracker.md) for the app side (French).
 
-**Latest:** [v0.2.0](https://github.com/AndreLiar/pea-audit/releases/tag/v0.2.0) — async API, typed Enums, prompt-version cache key, SSRF guard, 51 unit tests. Full history in [CHANGELOG.md](CHANGELOG.md).
+**Releases:** see [CHANGELOG.md](CHANGELOG.md) — latest is v0.2.1, current major-feature drop is [v0.2.0](https://github.com/AndreLiar/pea-audit/releases/tag/v0.2.0) (async API, typed Enums, prompt-version cache key, SSRF guard, 51 unit tests).
 
 ```
 $ python audit_cli.py samples/amundi_pea_monde_kid.pdf
@@ -89,7 +89,9 @@ llm = OllamaCloudClient(api_key="<your-ollama-cloud-key>")
 cache = VerdictCache(Path("./cache"))
 
 result = audit_ticker("EWLD.PA", llm=llm, kid_dir=Path("./kids"), cache=cache)
-print(result.verdict.eligible)  # Eligible.YES
+
+from pea_audit import Eligible
+assert result.verdict.eligible is Eligible.YES  # also: == "yes" still works
 ```
 
 Built-ins ship for the most common French ETFs (Amundi PEA range, BNP Paribas Easy). Add more:

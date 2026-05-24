@@ -120,9 +120,11 @@ Deux principes de découplage :
    que ce contrat tient, tu peux changer de source (yfinance → Alpha Vantage,
    Marketstack...) sans toucher au reste.
 
-2. `etftracker.ollama_client.analyze_images(...)` renvoie toujours un `dict`
-   conforme à un JSON Schema. Tant que ce contrat tient, tu peux remplacer
-   Ollama par Claude vision / OpenAI / Gemini sans toucher à `pea_audit.py`.
+2. `pea_audit.llm.VisionLLM.analyze_images(...)` renvoie toujours un `dict`
+   conforme à un JSON Schema. L'implémentation par défaut est
+   `pea_audit.llm.OllamaCloudClient` ; tu peux la remplacer par n'importe
+   quel autre backend vision (Claude, OpenAI, Gemini, Ollama local…) sans
+   toucher à `pea_audit.core`.
 
 Les scripts d'entrée (`cli.py`, `dashboard.py`, etc.) restent à la racine
 et s'exécutent toujours depuis la racine — les chemins relatifs (`cache/`,
