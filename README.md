@@ -2,6 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/pea-audit.svg)](https://pypi.org/project/pea-audit/)
 [![Python](https://img.shields.io/pypi/pyversions/pea-audit.svg)](https://pypi.org/project/pea-audit/)
+[![CI](https://github.com/AndreLiar/pea-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/AndreLiar/pea-audit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Audit French **PEA** (Plan d'Épargne en Actions) eligibility of ETFs by reading their **KID** (Key Information Document) with a vision LLM. Tells you whether a fund is actually eligible for a French PEA account — with verbatim citations from the document.
