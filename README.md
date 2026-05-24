@@ -7,6 +7,10 @@
 
 Audit French **PEA** (Plan d'Épargne en Actions) eligibility of ETFs by reading their **KID** (Key Information Document) with a vision LLM. Tells you whether a fund is actually eligible for a French PEA account — with verbatim citations from the document.
 
+> **What is a PEA?** France's tax-sheltered stock account (€150k cap, gains tax-free after 5 years). It only accepts EU-domiciled equities, or UCITS funds that *synthetically* replicate non-EU indexes (S&P 500, MSCI World, Nasdaq, …) via a swap on an EU-equity basket. Physical-replication funds of non-EU indexes — most iShares Core / Vanguard ETFs — don't qualify. **This library tells you which side of that line your fund is on.**
+
+> **What's in this repo?** Two things: **`pea-audit`** — the library you `pip install` (lives in `pea_audit/`) — and **ETFTracker** — a reference app that consumes it (Streamlit dashboard + CLI + FastAPI at the repo root, plus `etftracker/` helper code). Most of this README is about the library; see [ETFTracker.md](ETFTracker.md) for the app side (French).
+
 ```
 $ python audit_cli.py samples/amundi_pea_monde_kid.pdf
 📄 Audit de : samples/amundi_pea_monde_kid.pdf
@@ -46,13 +50,16 @@ pip install 'pea-audit[dev]'             # everything above + python-dotenv
 
 ## Quickstart
 
+Get an Ollama Cloud key at <https://ollama.com/settings/keys>, then:
+
 ```python
 from pathlib import Path
 from pea_audit import audit_pdf, VerdictCache
 from pea_audit.llm import OllamaCloudClient
 
-# Default backend: Ollama Cloud running Gemma 4 31b
-llm = OllamaCloudClient(api_key="sk-...")  # from https://ollama.com/settings/keys
+# Ollama Cloud keys look like "<32-hex-char id>.<24-char secret>"
+# (not "sk-..." — that's the OpenAI format)
+llm = OllamaCloudClient(api_key="abcdef0123456789abcdef0123456789.EXAMPLE-KEY-DO-NOT-USE")
 
 # Cache is opt-in. Library never writes to disk unless you supply one.
 cache = VerdictCache(Path("./cache"))
@@ -66,13 +73,15 @@ for c in verdict.evidence:
     print(f"  p.{c.page}: « {c.quote} »")
 ```
 
+**Don't have a KID PDF handy?** The repo ships `samples/amundi_pea_monde_kid.pdf` — clone or download it to try the example end-to-end on a real (PEA-eligible) Amundi fund.
+
 ### Audit by ticker (built-in URL registry)
 
 ```python
 from pea_audit import audit_ticker, VerdictCache
 from pea_audit.llm import OllamaCloudClient
 
-llm = OllamaCloudClient(api_key="sk-...")
+llm = OllamaCloudClient(api_key="<your-ollama-cloud-key>")
 cache = VerdictCache(Path("./cache"))
 
 result = audit_ticker("EWLD.PA", llm=llm, kid_dir=Path("./kids"), cache=cache)
@@ -94,7 +103,25 @@ register_source(KIDSource(
 
 ## Architecture
 
-Two protocols make this library extensible without forking:
+```mermaid
+flowchart LR
+    A[KID PDF] --> B[pypdfium2<br/>rasterize pages]
+    A --> C[pypdfium2<br/>text layer]
+    C --> D[ISIN regex<br/>+ Luhn check]
+    B --> E[VisionLLM<br/>analyze_images]
+    D -.-> E
+    E --> F[PeaVerdict<br/>eligible / replication<br/>isin / evidence]
+    F --> G[VerdictCache<br/>sha256-keyed]
+    G --> H[Your app:<br/>CLI / Streamlit / FastAPI / …]
+
+    style E fill:#dbeafe,stroke:#1e40af
+    style D fill:#dcfce7,stroke:#166534
+    style F fill:#fef3c7,stroke:#854d0e
+```
+
+The LLM judges *what the document says*; deterministic regex + Luhn reconciles the ISIN string (vision is fuzzy on alphanumerics). The cache is opt-in — pass `cache=None` for a stateless library.
+
+Two protocols make it extensible without forking:
 
 ### `VisionLLM` — swap the model
 
@@ -143,34 +170,9 @@ The repo also ships a personal-tool app that consumes the library: a French ETF 
 
 To run it: `cp positions.csv.example positions.csv`, edit with your own holdings, `cp .env.example .env` with your Ollama key, then `docker compose up -d web` or `streamlit run dashboard.py`.
 
-## Publishing checklist (maintainer)
-
-PyPI publication uses [trusted publishers](https://docs.pypi.org/trusted-publishers/) (OIDC) — no API token secret needed in CI.
-
-One-time setup:
-
-1. Create the project on https://pypi.org (or first on https://test.pypi.org for a dry-run)
-2. Add a Trusted Publisher pointing to `release.yml` in this repo, environment `pypi`
-3. In GitHub repo settings, create the `pypi` environment (no secrets needed)
-
-Per-release:
-
-```bash
-# 1. Update version in pyproject.toml + add entry to CHANGELOG.md
-# 2. Verify it builds + tests pass
-python -m build
-pytest tests/
-
-# 3. Tag and push — CI takes over
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-The `release.yml` workflow builds the wheel + sdist and publishes to PyPI automatically on tag push.
-
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Maintainer? See [PUBLISHING.md](PUBLISHING.md).
 
 ## License
 
